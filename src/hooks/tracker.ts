@@ -1,14 +1,13 @@
-import { LegacyRef } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Ref, ReactElement } from "react";
 
 interface TrackerParams {
   tag: string; // to register for backend app
   event: 'click';
 }
 
-export function useTracker({ tag, event }: TrackerParams): LegacyRef<HTMLDivElement> {
+export function useTracker<T>({ tag, event }: TrackerParams): Ref<T> {
 
-  const ref = useRef<null | HTMLDivElement>(null);
+  const ref = useRef<null | Element>(null);
 
   switch(event) {
     case 'click': {
@@ -32,5 +31,5 @@ export function useTracker({ tag, event }: TrackerParams): LegacyRef<HTMLDivElem
       break;
   }
 
-  return ref;
+  return ref as Ref<T>;
 }

@@ -7,7 +7,7 @@ import { useTracker } from './hooks/tracker'
 function App() {
   const [count, setCount] = useState(0)
 
-  const trackerRef = useTracker({
+  const trackerRef = useTracker<HTMLDivElement>({
     tag: 'area-test',
     event: 'click',
   })
@@ -23,11 +23,11 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div id="name" ref={trackerRef} className="card">
-        <button id="btn" onClick={() => setCount((count) => count + 1)}>
+      <div ref={trackerRef} className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
-        <p id="p">
+        <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
