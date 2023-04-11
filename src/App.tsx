@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { useTracker } from './hooks/tracker'
+import { Analytics } from './lib/Analytics'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -11,6 +12,10 @@ function App() {
     tag: 'area-test',
     event: 'click',
   })
+  useEffect(() => {
+    const analyticsApp = new Analytics()
+    analyticsApp.register('appId')
+  }, [])
 
   return (
     <div className="App">
