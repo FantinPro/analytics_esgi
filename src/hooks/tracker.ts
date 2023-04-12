@@ -1,5 +1,6 @@
-import { LegacyRef, useState } from "react";
-import { useEffect, useRef, Ref } from "react";
+import { Ref, useEffect, useRef, useState } from "react";
+import { useDebounce } from "./debounce";
+import { ESGIAnalytics } from "../lib/Analytics";
 
 interface TrackerParams {
     tag: string; // to register for backend app
@@ -7,55 +8,68 @@ interface TrackerParams {
 }
 
 export function useTracker<T>({ tag, event }: TrackerParams): Ref<T> {
-
     const ref = useRef<null | Element>(null);
-  
-    switch(event) {
-      case 'click': {
-        useEffect(() => {
-          const element = ref.current;
-  
-          const callback = () => {
-            console.log(`Event type : ${event}, tag : ${tag}`)
-          }
-        
-          if (element) {
-            element.addEventListener('click', callback);
-          }
-  
-          return () => {
-            element && element.removeEventListener('click', callback);
-          }
-        }, [ref.current]);
-      }
-      default:
-        break;
+
+    switch (event) {
+        case "click": {
+            useEffect(() => {
+                const element = ref.current;
+
+                const callback = () => {
+                    console.log(`Event type : ${event}, tag : ${tag}`);
+                };
+
+                if (element) {
+                    element.addEventListener("click", callback);
+                }
+
+                return () => {
+                    element && element.removeEventListener("click", callback);
+                };
+            }, [ref.current]);
+        }
+        default:
+            break;
     }
-  
+
     return ref as Ref<T>;
-  }
+}
 
 export function useMouseTracker<T>(): Ref<T> {
-
+    const [mousePositions, setMousePositions] = useState<{ x: number; y: number }[]>([]);
     const ref = useRef<null | HTMLDivElement>(null);
+
+    const handleMouseMove = (event: MouseEvent) =>{
+        setMousePositions((d) => [
+            ...d,
+            {
+                x: event.clientX,
+                y: event.clientY,
+                appId: ESGIAnalytics.getAppId(),
+                timestamp: new Date().getTime(),
+                resolutions: ESGIAnalytics.getResolutions(),
+            },
+        ]);
+    }
+
+    const debouncedPositions = useDebounce(mousePositions, 500);
 
     useEffect(() => {
         const element = ref.current;
 
-        function handleMouseMove(event: any) {
-            // call backend
-        }
-
         if (element) {
             element.addEventListener("mousemove", handleMouseMove);
         }
-        // Ajouter un écouteur d'événement pour suivre la souris
 
-        // Retirer l'écouteur d'événement lorsque le composant est démonté
         return () => {
             document.removeEventListener("mousemove", handleMouseMove);
         };
     }, [ref.current]);
 
-  return ref as Ref<T>;
+    useEffect(() => {
+        console.log(mousePositions);
+        setMousePositions([]);
+    }, [debouncedPositions]);
+
+    return ref as Ref<T>;
 }

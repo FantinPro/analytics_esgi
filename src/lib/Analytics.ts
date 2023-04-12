@@ -1,14 +1,29 @@
 import { DateTime } from "luxon";
 
-export class Analytics {
-    resolutions: { width: number; height: number } = {
+class Analytics {
+
+    private appId: string | undefined;
+
+    private resolutions: { width: number; height: number } = {
         width: window.innerWidth,
         height: window.innerHeight,
     };
 
     constructor() {}
 
+    getAppId() {
+        if (!this.appId) {
+            throw new Error("AppId is not defined");
+        }
+        return this.appId;
+    }
+
+    getResolutions() {
+        return this.resolutions;
+    }
+
     register(appId: string) {
+        this.appId = appId;
         this._handleActiveUser();
         this._handleResizeResolutions();
     }
@@ -49,5 +64,6 @@ export class Analytics {
             }
         });
     }
-
 }
+
+export const ESGIAnalytics = new Analytics();
