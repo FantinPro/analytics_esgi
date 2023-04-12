@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 class Analytics {
 
     private appId: string | undefined;
+    private sessionId: string | undefined;
 
     private resolutions: { width: number; height: number } = {
         width: window.innerWidth,
@@ -18,14 +19,22 @@ class Analytics {
         return this.appId;
     }
 
-    getResolutions() {
+    getResolutions(): { width: number; height: number } {
         return this.resolutions;
     }
 
-    register(appId: string) {
+    getSessionId() {
+        return this.sessionId;
+    }
+
+    register(appId: string): void {
         this.appId = appId;
         this._handleActiveUser();
         this._handleResizeResolutions();
+        const sessionId = localStorage.getItem("analytics-sessionid")
+        if (sessionId) {
+            this.sessionId = sessionId
+        }
     }
 
     private _handleActiveUser() {

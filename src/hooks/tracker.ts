@@ -48,6 +48,7 @@ export function useMouseTracker<T>(): Ref<T> {
                 appId: ESGIAnalytics.getAppId(),
                 timestamp: new Date().getTime(),
                 resolutions: ESGIAnalytics.getResolutions(),
+                sessionId: ESGIAnalytics.getSessionId(),
             },
         ]);
     }
