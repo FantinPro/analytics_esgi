@@ -1,7 +1,7 @@
 import { Ref, useEffect, useRef, useState } from "react";
-import { useLocation } from 'react-router-dom';
-import { useDebounce, useThrottle } from "./debounce";
+import { useLocation } from "react-router-dom";
 import { ESGIAnalytics } from "../Analytics";
+import { useThrottle } from "./debounce";
 
 interface TrackerParams {
     tag: string; // to register for backend app
@@ -11,14 +11,16 @@ interface TrackerParams {
 export function useTracker<T>({ tag, event }: TrackerParams): Ref<T> {
     const ref = useRef<null | Element>(null);
 
-    switch (event) {
-        case "click": {
-            useEffect(() => {
+    const callback = () => {
+        ESGIAnalytics.handleActiveUser();
+        console.log(`Event type : ${event}, tag : ${tag}`);
+    };
+
+    useEffect(() => {
+        switch (event) {
+            case "click": {
                 const element = ref.current;
 
-                const callback = () => {
-                    console.log(`Event type : ${event}, tag : ${tag}`);
-                };
 
                 if (element) {
                     element.addEventListener("click", callback);
@@ -27,20 +29,23 @@ export function useTracker<T>({ tag, event }: TrackerParams): Ref<T> {
                 return () => {
                     element && element.removeEventListener("click", callback);
                 };
-            }, [ref.current]);
+            }
+            default:
+                break;
         }
-        default:
-            break;
-    }
+    }, [ref.current]);
 
     return ref as Ref<T>;
 }
 
 export function useMouseTracker<T>(): Ref<T> {
-    const [mousePositions, setMousePositions] = useState<{ x: number; y: number }[]>([]);
+    const [mousePositions, setMousePositions] = useState<
+        { x: number; y: number }[]
+    >([]);
     const ref = useRef<null | HTMLDivElement>(null);
 
-    const handleMouseMove = (event: MouseEvent) =>{
+    const handleMouseMove = (event: MouseEvent) => {
+        ESGIAnalytics.handleActiveUser();
         setMousePositions((d) => [
             ...d,
             {
@@ -52,7 +57,7 @@ export function useMouseTracker<T>(): Ref<T> {
                 sessionId: ESGIAnalytics.getSessionId(),
             },
         ]);
-    }
+    };
 
     const throttledPositions = useThrottle(mousePositions, 2000);
 
@@ -77,9 +82,10 @@ export function useMouseTracker<T>(): Ref<T> {
 }
 
 export const useRouterMiddleware = () => {
-  const location = useLocation();
+    const location = useLocation();
 
-  useEffect(() => {
-    console.log('Current route:', location.pathname);
-  }, [location]);
-}
+    useEffect(() => {
+        ESGIAnalytics.handleActiveUser();
+        console.log("Current route:", location.pathname);
+    }, [location]);
+};

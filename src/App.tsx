@@ -16,7 +16,7 @@ function App() {
     const trackerMouseRef = useMouseTracker<HTMLDivElement>();
 
     useEffect(() => {
-        ESGIAnalytics.register('toto')
+        ESGIAnalytics.register('toto', 'secret')
     }, []);
 
     return (
