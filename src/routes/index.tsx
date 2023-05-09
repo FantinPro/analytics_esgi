@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { RouterProvider } from 'react-router-dom';
 import App from '../App';
-import useRouterMiddleware from '../hooks/useRouterMiddleware';
+import { useRouterMiddleware } from '../lib/hooks/tracker';
 
 const RouterModule: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   useRouterMiddleware();

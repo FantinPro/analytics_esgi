@@ -1,6 +1,7 @@
 import { Ref, useEffect, useRef, useState } from "react";
-import { useDebounce } from "./debounce";
-import { ESGIAnalytics } from "../lib/Analytics";
+import { useLocation } from 'react-router-dom';
+import { useDebounce, useThrottle } from "./debounce";
+import { ESGIAnalytics } from "../Analytics";
 
 interface TrackerParams {
     tag: string; // to register for backend app
@@ -53,7 +54,7 @@ export function useMouseTracker<T>(): Ref<T> {
         ]);
     }
 
-    const debouncedPositions = useDebounce(mousePositions, 500);
+    const throttledPositions = useThrottle(mousePositions, 2000);
 
     useEffect(() => {
         const element = ref.current;
@@ -70,7 +71,15 @@ export function useMouseTracker<T>(): Ref<T> {
     useEffect(() => {
         console.log(mousePositions);
         setMousePositions([]);
-    }, [debouncedPositions]);
+    }, [throttledPositions]);
 
     return ref as Ref<T>;
+}
+
+export const useRouterMiddleware = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('Current route:', location.pathname);
+  }, [location]);
 }

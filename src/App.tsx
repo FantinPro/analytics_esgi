@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { useMouseTracker, useTracker } from "./hooks/tracker";
+import { useMouseTracker, useTracker } from "./lib/hooks/tracker";
 import { ESGIAnalytics } from "./lib/Analytics";
 
 function App() {
