@@ -14,13 +14,21 @@ export function useTracker<T>({ tag, event }: TrackerParams): Ref<T> {
     const callback = () => {
         ESGIAnalytics.handleActiveUser();
         console.log(`Event type : ${event}, tag : ${tag}`);
+        ESGIAnalytics.sendAnalyticsEvent([
+            {
+                timestamp: Date.now(),
+                dimensions: {
+                    event,
+                    tag,
+                },
+            }
+        ]);
     };
 
     useEffect(() => {
         switch (event) {
             case "click": {
                 const element = ref.current;
-
 
                 if (element) {
                     element.addEventListener("click", callback);
@@ -40,7 +48,11 @@ export function useTracker<T>({ tag, event }: TrackerParams): Ref<T> {
 
 export function useMouseTracker<T>(): Ref<T> {
     const [mousePositions, setMousePositions] = useState<
-        { x: number; y: number }[]
+        {
+            x: number;
+            y: number;
+            resolution: { width: number; height: number };
+        }[]
     >([]);
     const ref = useRef<null | HTMLDivElement>(null);
 
@@ -51,10 +63,7 @@ export function useMouseTracker<T>(): Ref<T> {
             {
                 x: event.clientX,
                 y: event.clientY,
-                applicationId: ESGIAnalytics.getAppId(),
-                timestamp: new Date().getTime(),
                 resolution: ESGIAnalytics.getResolutions(),
-                sessionId: ESGIAnalytics.getSessionId(),
             },
         ]);
     };
@@ -74,7 +83,17 @@ export function useMouseTracker<T>(): Ref<T> {
     }, [ref.current]);
 
     useEffect(() => {
-        console.log(mousePositions);
+        ESGIAnalytics.sendAnalyticsEvent(mousePositions.map((m) => ({
+            timestamp: Date.now(),
+            dimensions: {
+                event: "mousemove",
+                meta: {
+                    x: m.x,
+                    y: m.y,
+                },
+                resolution: m.resolution,
+            },
+        })));
         setMousePositions([]);
     }, [throttledPositions]);
 
@@ -86,6 +105,13 @@ export const useRouterMiddleware = () => {
 
     useEffect(() => {
         ESGIAnalytics.handleActiveUser();
-        console.log("Current route:", location.pathname);
+        ESGIAnalytics.sendAnalyticsEvent([
+            {
+                timestamp: Date.now(),
+                dimensions: {
+                    route: location.pathname,
+                }
+            }
+        ]);
     }, [location]);
 };

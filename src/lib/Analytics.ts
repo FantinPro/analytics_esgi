@@ -1,12 +1,30 @@
 import { DateTime } from "luxon";
 
+type TrackerEvent = {
+    timestamp: number;
+    dimensions?: {
+        route?: string;
+        resolution?: {
+            width: number;
+            height: number;
+        };
+        tag?: string;
+        event?: string;
+        meta?: Record<string, any>;
+        [key: string]: any;
+    };
+};
+
 type AnalyticsOptions = {
     afk?: number;
 };
 class Analytics {
-    private appId: string | undefined;
-    private secretKey: string | undefined;
+    readonly API_URL = "http://localhost:3000";
+
+    private applicationId: string | undefined;
+    private visitorId: string | undefined | null;
     private sessionId: string | undefined;
+    private labelService: string | undefined;
     private afk: number = 300;
 
     private resolutions: { width: number; height: number } = {
@@ -16,11 +34,11 @@ class Analytics {
 
     constructor() {}
 
-    getAppId() {
-        if (!this.appId) {
-            throw new Error("AppId is not defined");
+    getApplicationId() {
+        if (!this.applicationId) {
+            throw new Error("ApplicationId is not defined");
         }
-        return this.appId;
+        return this.applicationId;
     }
 
     getResolutions(): { width: number; height: number } {
@@ -31,9 +49,22 @@ class Analytics {
         return this.sessionId;
     }
 
-    register(appId: string, secretKey: string, opt?: AnalyticsOptions): void {
-        this.appId = appId;
-        this.secretKey = secretKey;
+    register(applicationId: string, labelService: string, opt?: AnalyticsOptions): void {
+        if (!applicationId) {
+            throw new Error("ApplicationId is required");
+        }
+        if (!labelService) {
+            throw new Error("LabelService is required");
+        }
+        this.visitorId = localStorage.getItem("analytics-visitorid");
+        if (!this.visitorId) {
+            const visitorId = crypto.randomUUID();
+            localStorage.setItem("visitor-id", visitorId);
+            this.visitorId = visitorId;
+        }
+
+        this.applicationId = applicationId;
+        this.labelService = labelService;
         if (opt?.afk) {
             this.afk = opt.afk;
         }
@@ -68,6 +99,24 @@ class Analytics {
             "analytics-session-expiration",
             `${fiveMinutesFromNow}`
         );
+    }
+
+    sendAnalyticsEvent(events: TrackerEvent[]) {
+        const mappedEvents = events.map((event) => ({
+            ...event,
+            applicationId: this.applicationId,
+            sessionId: this.sessionId,
+            visitorId: this.visitorId,
+            labelService: this.labelService,
+        }));
+        return fetch(`${this.API_URL}/tracker-event`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-application-id": this.applicationId ?? "",
+            },
+            body: JSON.stringify(mappedEvents),
+        });
     }
 
     private _handleResizeResolutions() {

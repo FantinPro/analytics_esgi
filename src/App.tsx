@@ -16,7 +16,10 @@ function App() {
     const trackerMouseRef = useMouseTracker<HTMLDivElement>();
 
     useEffect(() => {
-        ESGIAnalytics.register('toto', 'secret')
+        ESGIAnalytics.register(
+            import.meta.env.VITE_APP_ID,
+            'frontend_app'
+        );
     }, []);
 
     return (
