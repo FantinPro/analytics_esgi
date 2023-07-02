@@ -1,24 +1,25 @@
-import { createBrowserRouter } from 'react-router-dom';
-import { RouterProvider } from 'react-router-dom';
-import App from '../App';
-import { useRouterMiddleware } from '../lib/hooks/tracker';
+import { useRouterMiddleware } from "@omaziarz/esgi-analytics-sdk-front";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import App from "../App";
 
-const RouterModule: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+const RouterModule: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
   useRouterMiddleware();
   return <>{children}</>;
 };
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element:
+    path: "/",
+    element: (
       <RouterModule>
         <App />
       </RouterModule>
-    ,
+    ),
     children: [
       {
-        path: 'home',
+        path: "home",
         element: <div>Home</div>,
       },
     ],
@@ -28,6 +29,5 @@ const router = createBrowserRouter([
 const Router: React.FC = () => {
   return <RouterProvider router={router} />;
 };
-
 
 export default Router;

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+
+import ESGIAnalytics, {
+  useMouseTracker,
+  useTracker,
+} from "@omaziarz/esgi-analytics-sdk-front";
 import "./App.css";
 import reactLogo from "./assets/react.svg";
-import { ESGIAnalytics } from "./lib/Analytics";
-import { useMouseTracker, useTracker } from "./lib/hooks/tracker";
 import viteLogo from "/vite.svg";
 
 function App() {
